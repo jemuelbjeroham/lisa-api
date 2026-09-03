@@ -721,6 +721,7 @@ source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
     { name = "lisa" },
+    { name = "pytest" },
     { name = "ruff" },
     { name = "uvicorn" },
 ]
@@ -729,6 +730,7 @@ dependencies = [
 requires-dist = [
     { name = "fastapi", specifier = ">=0.141.1" },
     { name = "lisa", editable = "../LISA" },
+    { name = "pytest", specifier = ">=9.1.1" },
     { name = "ruff", specifier = ">=0.16.6" },
     { name = "uvicorn", specifier = ">=0.52.4" },
 ]
