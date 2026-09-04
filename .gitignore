@@ -8,3 +8,9 @@ wheels/
 
 # Virtual environments
 .venv
+
+#Environmental Variable
+.env
+
+#Logs
+logs/
