@@ -3,6 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from lisa.application import LISA
 
+from lisa_api.routes import router
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -15,3 +17,5 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan
     )
+
+app.include_router(router)
