@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from unittest.mock import AsyncMock, Mock
+from uuid import uuid4
 
 import pytest
 from fastapi import FastAPI
@@ -11,6 +12,7 @@ from lisa_api.routes import router
 @pytest.mark.anyio
 async def test_chat_route():
     lisa = Mock()
+    conversation_id = str(uuid4())
 
     lisa.graph.ainvoke = AsyncMock(
         return_value={
@@ -32,6 +34,7 @@ async def test_chat_route():
         response = client.post(
             "/api/v1/chat",
             json={
+                "conversation_id": conversation_id,
                 "message": "Why is the firewall blocking the connection?"
             },
         )

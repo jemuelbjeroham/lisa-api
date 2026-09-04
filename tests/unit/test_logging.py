@@ -1,6 +1,7 @@
 import logging
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
+from uuid import uuid4
 
 import pytest
 from fastapi import Request
@@ -55,7 +56,7 @@ async def test_chat_logs_request(caplog):
 
     request.scope["app"] = app
 
-    payload = ChatRequest(message="Test question")
+    payload = ChatRequest(conversation_id=uuid4(), message="Test question")
 
     with caplog.at_level(logging.INFO):
         response = await chat(request, payload)
