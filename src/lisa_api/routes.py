@@ -14,8 +14,8 @@ async def chat(request: Request, payload: ChatRequest) -> ChatResponse:
     lisa = request.app.state.lisa
 
     try:
-        response = await lisa.graph.ainvoke(
-            conversation_id=str(payload.conversation_id),
+        response = await lisa.chat(
+            conversation_id=payload.conversation_id,
             message=payload.message
         )
 
