@@ -14,23 +14,15 @@ async def chat(request: Request, payload: ChatRequest) -> ChatResponse:
     lisa = request.app.state.lisa
 
     try:
-        result = await lisa.graph.ainvoke(
-            {
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": payload.message,
-                    }
-                ]
-            }
+        response = await lisa.graph.ainvoke(
+            conversation_id=str(payload.conversation_id),
+            message=payload.message
         )
 
     except Exception:
         logger.exception("Chat Request Failure")
         raise
 
-    response = result["messages"][-1]
-
     logger.info("Chat request has been completed")
 
-    return ChatResponse(response=response.content)
+    return ChatResponse(response=response)
