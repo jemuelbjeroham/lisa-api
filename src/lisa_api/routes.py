@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 
 from lisa_api.schemas import ChatRequest, ChatResponse
