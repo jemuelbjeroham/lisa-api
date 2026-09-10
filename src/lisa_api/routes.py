@@ -17,7 +17,8 @@ async def chat(request: Request, payload: ChatRequest) -> ChatResponse:
     try:
         response = await lisa.chat(
             conversation_id=payload.conversation_id,
-            message=payload.message
+            message=payload.message,
+            enable_thinking=payload.enable_thinking,
         )
 
     except Exception:
@@ -29,7 +30,7 @@ async def chat(request: Request, payload: ChatRequest) -> ChatResponse:
     return ChatResponse(response=response)
 
 @router.post("/chat/stream")
-async def chat_stream(request: Request, payload:ChatRequest) -> StreamingResponse:
+async def chat_stream(request: Request, payload: ChatRequest) -> StreamingResponse:
     logger.info("Streaming Chat Request Received")
 
     lisa = request.app.state.lisa
@@ -39,6 +40,7 @@ async def chat_stream(request: Request, payload:ChatRequest) -> StreamingRespons
             async for chunk in lisa.stream_chat(
                 conversation_id=payload.conversation_id,
                 message=payload.message,
+                enable_thinking=payload.enable_thinking,
             ):
                 yield chunk
 
