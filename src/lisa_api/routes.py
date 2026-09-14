@@ -1,3 +1,4 @@
+import json
 import logging
 
 from fastapi import APIRouter, Request
@@ -37,12 +38,12 @@ async def chat_stream(request: Request, payload: ChatRequest) -> StreamingRespon
 
     async def generate():
         try:
-            async for chunk in lisa.stream_chat(
+            async for event in lisa.stream_chat(
                 conversation_id=payload.conversation_id,
                 message=payload.message,
                 enable_thinking=payload.enable_thinking,
             ):
-                yield chunk
+                yield json.dumps(event.model_dump()) + "\n"
 
         except Exception:
             logger.exception("Streaming Chat Request Failed")
