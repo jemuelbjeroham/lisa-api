@@ -4,6 +4,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from lisa.application import LISA
+from lisa.conversation.redis import RedisConversationStore
+from redis.asyncio import Redis
 
 from lisa_api.logging import configure_logging
 from lisa_api.routes import router
@@ -15,9 +17,29 @@ async def lifespan(app: FastAPI):
     configure_logging()
     logger.info("Starting LISA API")
 
-    async with LISA() as lisa:
-        app.state.lisa = lisa
-        yield
+    redis = Redis(
+        host="localhost",
+        port=6379,
+        decode_responses=True,
+    )
+
+    try:
+        await redis.ping()
+        logger.info("Connected to Redis and it is active")
+
+        conversation_store = RedisConversationStore(
+            redis=redis,
+        )
+
+        async with LISA(
+            conversation_store=conversation_store
+        ) as lisa:
+            app.state.lisa = lisa
+            yield
+
+    finally:
+        await redis.aclose()
+        logger.info("Connection to Redis has been closed")
 
     logger.info("LISA API shutdown complete")
 
