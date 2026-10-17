@@ -1,13 +1,10 @@
 import logging
 from contextlib import asynccontextmanager
-from uuid import UUID
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from lisa.application import LISA
 from lisa.conversation.redis import RedisConversationStore
-from lisa.identity.development import DevelopmentIdentityProvider
-from lisa.identity.models import User
 from redis.asyncio import Redis
 
 from lisa_api.logging import configure_logging
@@ -20,12 +17,6 @@ async def lifespan(app: FastAPI):
     configure_logging()
     logger.info("Starting LISA API")
 
-    identity_provider = DevelopmentIdentityProvider(
-        user=User(
-            id=UUID("00000000-0000-0000-0000-000000000001"),
-            display_name="Local Dev User",
-        )
-    )
     redis = Redis(
         host="localhost",
         port=6379,
@@ -44,7 +35,6 @@ async def lifespan(app: FastAPI):
             conversation_store=conversation_store
         ) as lisa:
             app.state.lisa = lisa
-            app.state.identity_provider = identity_provider
             yield
 
     finally:
