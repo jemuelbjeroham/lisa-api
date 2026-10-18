@@ -72,7 +72,6 @@ async def get_current_user(
 
 
 async def get_current_admin(
-    request: Request,
     user: Annotated[User, Depends(get_current_user)],
     session: DatabaseSession,
 ) -> User:
