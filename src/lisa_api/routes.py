@@ -1,10 +1,12 @@
 import json
 import logging
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import StreamingResponse
 from lisa.identity.models import User
+from pydantic import BaseModel
 
 from lisa_api.admin import router as admin_router
 from lisa_api.auth import router as auth_router
@@ -17,6 +19,10 @@ router = APIRouter(prefix="/api/v1")
 router.include_router(auth_router)
 router.include_router(admin_router)
 router.include_router(passwords_router)
+
+class ConversationListResponse(BaseModel):
+    conversations: list[UUID]
+
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat(request: Request, payload: ChatRequest, user: Annotated[User, Depends(get_current_user)]) -> ChatResponse:
@@ -61,4 +67,14 @@ async def chat_stream(request: Request, payload: ChatRequest, user: Annotated[Us
             raise
 
     return StreamingResponse(generate(), media_type="text/plain")
-    
+
+@router.get("/conversations", response_model=ConversationListResponse)
+async def list_conversations(
+    request: Request,
+    user: Annotated[User, Depends(get_current_user)],
+) -> ConversationListResponse:
+    lisa = request.app.state.lisa
+
+    conversation_ids = await lisa.list_conversations(user_id=user.id)
+
+    return ConversationListResponse(conversations=conversation_ids)
