@@ -113,7 +113,8 @@ def main() -> None:
     except RuntimeError as exc:
         print(f"Bootstrap refused: {exc}", file=sys.stderr)
         raise SystemExit(1) from exc
-    except Exception:
+    
+    except (OSError, ValueError):
         print(
             "Administrator creation failed. Check database configuration "
             "and application logs.",
