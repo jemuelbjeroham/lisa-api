@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.14"
 dependencies = [
+    "email-validator>=2.3.0",
     "fastapi>=0.141.1",
     "lisa",
     "pwdlib[argon2]>=0.3.1",
@@ -18,6 +19,7 @@ dependencies = [
 
 [project.scripts]
 lisa-api = "lisa_api:main"
+lisa-api-bootstrap-admin = "lisa_api.bootstrap_admin:main"
 
 [build-system]
 requires = ["uv_build>=0.12.1,<0.13.0"]
