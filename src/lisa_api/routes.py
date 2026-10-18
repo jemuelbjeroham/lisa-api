@@ -6,13 +6,17 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import StreamingResponse
 from lisa.identity.models import User
 
+from lisa_api.admin import router as admin_router
 from lisa_api.auth import router as auth_router
 from lisa_api.dependencies import get_current_user
+from lisa_api.passwords import router as passwords_router
 from lisa_api.schemas import ChatRequest, ChatResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1")
 router.include_router(auth_router)
+router.include_router(admin_router)
+router.include_router(passwords_router)
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat(request: Request, payload: ChatRequest, user: Annotated[User, Depends(get_current_user)]) -> ChatResponse:
