@@ -18,7 +18,7 @@ from sqlalchemy import select
 
 from lisa_api.dependencies import DatabaseSession, get_current_user
 
-router = APIRouter(prefix="/api/v1/auth", tags=["authentication"])
+router = APIRouter(prefix="/auth", tags=["authentication"])
 password_hash = PasswordHash.recommended()
 
 SESSION_COOKIE_NAME = "lisa_session"

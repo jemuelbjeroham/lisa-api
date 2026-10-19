@@ -15,7 +15,7 @@ from sqlalchemy import select, update
 from lisa_api.dependencies import DatabaseSession, get_current_user
 
 router = APIRouter(
-    prefix="/api/v1/auth",
+    prefix="/auth",
     tags=["passwords"],
 )
 

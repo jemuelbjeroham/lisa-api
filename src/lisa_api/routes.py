@@ -22,8 +22,12 @@ router.include_router(admin_router)
 router.include_router(passwords_router)
 
 
+class ConversationSummary(BaseModel):
+    id: UUID
+    title: str | None = None
+
 class ConversationListResponse(BaseModel):
-    conversations: list[UUID]
+    conversations: list[ConversationSummary]
 
 class ConversationMessage(BaseModel):
     role: Literal["user", "assistant"]
@@ -31,6 +35,7 @@ class ConversationMessage(BaseModel):
 
 class ConversationDetailResponse(BaseModel):
     id: UUID
+    title: str | None = None
     messages: list[ConversationMessage]
 
 class RenameConversationRequest(BaseModel):
@@ -112,6 +117,7 @@ async def chat_stream(
     return StreamingResponse(generate(), media_type="text/plain")
 
 
+
 @router.get(
     "/conversations",
     response_model=ConversationListResponse,
@@ -121,10 +127,45 @@ async def list_conversations(
     user: Annotated[User, Depends(get_current_user)],
 ) -> ConversationListResponse:
     lisa = request.app.state.lisa
+    store = lisa.conversation_store
 
-    conversation_ids = await lisa.list_conversations(user_id=user.id)
+    conversation_ids = await store.list_conversations(user.id)
+    conversations: list[ConversationSummary] = []
 
-    return ConversationListResponse(conversations=conversation_ids)
+    for conversation_id in conversation_ids:
+        state = await store.get(user.id, conversation_id)
+        if state is None:
+            continue
+
+        title = await store.get_title(user.id, conversation_id)
+
+        if not title:
+            first_user_message = next(
+                (
+                    message.content
+                    for message in state["messages"]
+                    if message.type == "human"
+                    and isinstance(message.content, str)
+                    and message.content.strip()
+                ),
+                None,
+            )
+
+            if first_user_message:
+                title = first_user_message[:40]
+                if len(first_user_message) > 40:
+                    title += "…"
+            else:
+                title = "Conversation"
+
+        conversations.append(
+            ConversationSummary(
+                id=conversation_id,
+                title=title,
+            )
+        )
+
+    return ConversationListResponse(conversations=conversations)
 
 
 @router.get(
@@ -173,8 +214,14 @@ async def get_conversation(
             )
         )
 
+    title = await lisa.conversation_store.get_title(
+        user.id,
+        conversation_id,
+    )
+
     return ConversationDetailResponse(
         id=conversation_id,
+        title=title,
         messages=messages,
     )
 

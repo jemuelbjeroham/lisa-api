@@ -18,7 +18,7 @@ from sqlalchemy.exc import IntegrityError
 from lisa_api.dependencies import DatabaseSession, get_current_admin
 
 router = APIRouter(
-    prefix="/api/v1/admin/users",
+    prefix="/admin/users",
     tags=["admin-users"],
 )
 

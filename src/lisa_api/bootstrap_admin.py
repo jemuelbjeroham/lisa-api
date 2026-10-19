@@ -77,7 +77,10 @@ async def create_first_admin(
                 password_updated_at=now,
             )
 
-            session.add_all([profile, credential])
+            session.add(profile)
+            await session.flush()  # Ensure user_profiles is inserted first.
+
+            session.add(credential)
             await session.flush()
 
         print(f"Administrator created successfully: {normalized_email}")
