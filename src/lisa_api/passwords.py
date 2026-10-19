@@ -27,6 +27,7 @@ class ChangePasswordRequest(BaseModel):
     new_password: str = Field(min_length=12, max_length=1024)
 
 
+
 @router.post("/change-password")
 async def change_password(
     payload: ChangePasswordRequest,
@@ -54,15 +55,20 @@ async def change_password(
             detail="New password must differ from the current password",
         )
 
+    now = datetime.now(UTC)
+
     credential.password_hash = password_hash.hash(payload.new_password)
-    credential.password_updated_at = datetime.now(UTC)
+    credential.password_updated_at = now
+
     await session.execute(
         update(UserSessionModel)
         .where(
             UserSessionModel.user_id == user.id,
             UserSessionModel.revoked_at.is_(None),
         )
-        .values(revoked_at=datetime.now(UTC))
+        .values(revoked_at=now)
     )
+
+    await session.flush()
 
     return {"message": "Password changed successfully"}
