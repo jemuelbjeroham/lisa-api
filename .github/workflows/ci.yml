@@ -14,3 +14,4 @@ jobs:
     uses: jemuelbjeroham/lisa-cicd/.github/workflows/python-ci.yml@de5419a83697f1880946241e83707d86292c66f5
     with:
       python-version: "3.14"
+      checkout-lisa-dependency: true
