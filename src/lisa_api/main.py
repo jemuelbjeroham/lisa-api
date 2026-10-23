@@ -1,4 +1,5 @@
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -17,9 +18,8 @@ async def lifespan(app: FastAPI):
     configure_logging()
     logger.info("Starting LISA API")
 
-    redis = Redis(
-        host="localhost",
-        port=6379,
+    redis = Redis.from_url(
+        os.getenv("LISA_REDIS_URL", "redis://localhost:6379/0"),
         decode_responses=True,
     )
 
@@ -63,7 +63,14 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        origin.strip()
+        for origin in os.getenv(
+            "LISA_CORS_ALLOWED_ORIGINS",
+            "http://localhost:3000",
+        ).split(",")
+        if origin.strip()
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
